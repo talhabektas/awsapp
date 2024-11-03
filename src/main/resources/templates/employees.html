@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Employee List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <h2>Employee Management</h2>
+
+    <!-- Add Employee Form -->
+    <form th:action="@{/employees}" method="post" enctype="multipart/form-data" class="mb-4">
+        <div class="row">
+            <div class="col-md-3">
+                <input type="text" name="empno" class="form-control" placeholder="Employee Number" required>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="ename" class="form-control" placeholder="Name" required>
+            </div>
+            <div class="col-md-3">
+                <input type="file" name="image" class="form-control" accept="image/*">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary">Add Employee</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Employee List Table -->
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Employee No</th>
+            <th>Employee Name</th>
+            <th>Job</th>
+            <th>Manager Name</th>
+            <th>Hire Date</th>
+            <th>Salary</th>
+            <th>Commission</th>
+            <th>Department</th>
+            <th>Image</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="employee : ${employee}">
+            <td th:text="${employee.employeeNo}"></td>
+            <td th:text="${employee.employeeName}"></td>
+            <td th:text="${employee.job}"></td>
+            <td th:text="${employee.managerName}"></td>
+            <td th:text="${employee.hireDate}"></td>
+            <td th:text="${employee.salary}"></td>
+            <td th:text="${employee.commission}"></td>
+            <td th:text="${employee.departmentName}"></td>
+            <td>
+                <img th:if="${employee.imageUrl}" th:src="${employee.imageUrl}"
+                     style="width: 50px; height: 50px;" class="rounded">
+            </td>
+            <td>
+                <form th:action="@{/employees/delete/{empno}(empno=${employee.employeeNo})}" method="post">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
