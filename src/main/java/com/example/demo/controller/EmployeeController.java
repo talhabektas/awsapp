@@ -3,6 +3,9 @@ package com.example.demo.controller;
 import com.example.demo.Services.EmployeeServices;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.example.demo.Services.S3services;
-
 @Controller
 @RequestMapping("/employees")
 @RequiredArgsConstructor
@@ -20,12 +22,12 @@ public class EmployeeController {
     private final EmployeeServices employeeService;
     private final S3services s3Service;
 
-
     @GetMapping("/sync-s3-images")
     public String syncS3Images() {
         employeeService.initializeEmployeesWithS3Images();
         return "redirect:/employees";
     }
+
     @GetMapping
     public String listEmployees(Model model) {
         model.addAttribute("employee", employeeService.getAllEmployeeDetails());
@@ -35,10 +37,28 @@ public class EmployeeController {
     @PostMapping
     public String addEmployee(@RequestParam("empno") Long empno,
                               @RequestParam("ename") String ename,
+                              @RequestParam("job") String job,
+                              @RequestParam("managerName") String managerName,
+                              @RequestParam("hireDate") String hireDate,
+                              @RequestParam("salary") Double salary,
+                              @RequestParam("commission") Double commission,
+                              @RequestParam("departmentName") String departmentName,
                               @RequestParam("image") MultipartFile image) {
+
         Employee employee = new Employee();
         employee.setEmpno(empno);
         employee.setEname(ename);
+        employee.setJob(job);
+        employee.setSal(salary);
+        employee.setComm(commission);
+
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            employee.setHiredate(dateFormat.parse(hireDate));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
 
         if (!image.isEmpty()) {
             String fileName = s3Service.uploadFile(image);
@@ -46,11 +66,11 @@ public class EmployeeController {
             employee.setImg(imageUrl);
         }
 
-        employeeService.saveEmployee(employee);
+        employeeService.saveEmployeeWithDetails(employee, managerName, departmentName);
         return "redirect:/employees";
     }
 
-     @PostMapping("/delete/{empno}")
+    @PostMapping("/delete/{empno}")
     public String deleteEmployee(@PathVariable Long empno) {
         employeeService.deleteEmployee(empno);
         return "redirect:/employees";

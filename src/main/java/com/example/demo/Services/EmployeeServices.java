@@ -67,10 +67,23 @@ public class EmployeeServices {
         return details;
     }
 
-    public void saveEmployee(Employee employee) {
+    public void saveEmployeeWithDetails(Employee employee, String managerName, String departmentName) {
+        if (managerName != null && !managerName.trim().isEmpty()) {
+            Employee manager = employeeRepository.findByEname(managerName);
+            if (manager != null) {
+                employee.setMgr(manager.getEmpno());
+            }
+        }
+
+        if (departmentName != null && !departmentName.trim().isEmpty()) {
+            Department department = departmentRepository.findByDname(departmentName);
+            if (department != null) {
+                employee.setDeptno(department.getDeptno());
+            }
+        }
+
         employeeRepository.save(employee);
     }
-
     public void deleteEmployee(Long empno) {
         employeeRepository.deleteById(empno);
     }
