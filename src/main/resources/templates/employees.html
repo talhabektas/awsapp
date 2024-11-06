@@ -109,6 +109,7 @@
                      style="width: 50px; height: 50px;" class="rounded">
             </td>
             <td>
+                <a th:href="@{/employees/edit/{empno}(empno=${employee.employeeNo})}" class="btn btn-primary btn-sm">Edit</a>
                 <form th:action="@{/employees/delete/{empno}(empno=${employee.employeeNo})}" method="post">
                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                 </form>

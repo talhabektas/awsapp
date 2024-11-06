@@ -33,7 +33,46 @@ public class EmployeeController {
         model.addAttribute("employee", employeeService.getAllEmployeeDetails());
         return "employees";
     }
+    @GetMapping("/edit/{empno}")
+    public String editEmployee(@PathVariable Long empno, Model model) {
+        Employee employee = employeeService.getEmployeeById(empno);
+        model.addAttribute("employee", employee);
+        return "employee-edit";
+    }
 
+    @PostMapping("/edit/{empno}")
+    public String updateEmployee(@PathVariable Long empno,
+                                 @RequestParam("ename") String ename,
+                                 @RequestParam("job") String job,
+                                 @RequestParam("managerName") String managerName,
+                                 @RequestParam("hireDate") String hireDate,
+                                 @RequestParam("salary") Double salary,
+                                 @RequestParam("commission") Double commission,
+                                 @RequestParam("departmentName") String departmentName,
+                                 @RequestParam("image") MultipartFile image) {
+
+        Employee employee = employeeService.getEmployeeById(empno);
+        employee.setEname(ename);
+        employee.setJob(job);
+        employee.setSal(salary);
+        employee.setComm(commission);
+
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            employee.setHiredate(dateFormat.parse(hireDate));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        if (!image.isEmpty()) {
+            String fileName = s3Service.uploadFile(image);
+            String imageUrl = s3Service.getFileUrl(fileName);
+            employee.setImg(imageUrl);
+        }
+
+        employeeService.updateEmployee(employee, managerName, departmentName);
+        return "redirect:/employees";
+    }
     @PostMapping
     public String addEmployee(@RequestParam("empno") Long empno,
                               @RequestParam("ename") String ename,
@@ -58,7 +97,6 @@ public class EmployeeController {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
 
         if (!image.isEmpty()) {
             String fileName = s3Service.uploadFile(image);
