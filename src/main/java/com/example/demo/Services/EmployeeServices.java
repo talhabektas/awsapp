@@ -67,26 +67,55 @@ public class EmployeeServices {
 
         return details;
     }
-    public Employee getEmployeeById(Long empno) {
-        return employeeRepository.findById(empno).orElse(null);
-    }
+//    public Employee getEmployeeById(Long empno) {
+//        return employeeRepository.findById(empno).orElse(null);
+//    }
 
-    public void updateEmployee(Employee employee, String managerName, String departmentName) {
-        if (managerName != null && !managerName.trim().isEmpty()) {
-            Employee manager = employeeRepository.findByEname(managerName);
-            if (manager != null) {
-                employee.setMgr(manager.getEmpno());
-            }
+//    public void updateEmployee(Employee employee, String managerName, String departmentName) {
+//        if (managerName != null && !managerName.trim().isEmpty()) {
+//            Employee manager = employeeRepository.findByEname(managerName);
+//            if (manager != null) {
+//                employee.setMgr(manager.getEmpno());
+//            }
+//        }
+//
+//        if (departmentName != null && !departmentName.trim().isEmpty()) {
+//            Department department = departmentRepository.findByDname(departmentName);
+//            if (department != null) {
+//                employee.setDeptno(department.getDeptno());
+//            }
+//        }
+//
+//        employeeRepository.save(employee);
+//    }
+public Employee getEmployeeById(Long empno) {
+    return employeeRepository.findById(empno)
+            .orElseThrow(() -> new RuntimeException("Employee not found"));
+}
+
+    public EmployeeDetail getEmployeeDetailById(Long empno) {
+        Employee emp = getEmployeeById(empno);
+        EmployeeDetail dto = new EmployeeDetail();
+
+        dto.setEmployeeNo(emp.getEmpno());
+        dto.setEmployeeName(emp.getEname() != null ? emp.getEname() : "");
+        dto.setJob(emp.getJob() != null ? emp.getJob() : "");
+        dto.setHireDate(emp.getHiredate() != null ? emp.getHiredate().toString() : "");
+        dto.setSalary(emp.getSal() != null ? emp.getSal() : 0.0);
+        dto.setCommission(emp.getComm() != null ? emp.getComm() : 0.0);
+        dto.setImageUrl(emp.getImg() != null ? emp.getImg() : "");
+
+        if (emp.getMgr() != null) {
+            Employee manager = employeeRepository.findById(emp.getMgr()).orElse(null);
+            dto.setManagerName(manager != null ? manager.getEname() : "");
         }
 
-        if (departmentName != null && !departmentName.trim().isEmpty()) {
-            Department department = departmentRepository.findByDname(departmentName);
-            if (department != null) {
-                employee.setDeptno(department.getDeptno());
-            }
+        if (emp.getDeptno() != null) {
+            Department dept = departmentRepository.findById(emp.getDeptno()).orElse(null);
+            dto.setDepartmentName(dept != null ? dept.getDname() : "");
         }
 
-        employeeRepository.save(employee);
+        return dto;
     }
     public void saveEmployeeWithDetails(Employee employee, String managerName, String departmentName) {
         // Find manager by name and set manager ID
